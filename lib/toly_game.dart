@@ -1,7 +1,7 @@
 /*
  * @Author: jimmy.zhao
  * @Date: 2022-11-07 18:48:25
- * @LastEditTime: 2022-11-08 14:23:48
+ * @LastEditTime: 2022-11-09 00:53:28
  * @LastEditors: jimmy.zhao
  * @Description: 
  * 
@@ -24,6 +24,7 @@ class TolyGame extends FlameGame
     with HasDraggables, KeyboardEvents, TapDetector {
   late final JoystickComponent joystick;
   late final HeroComponent player;
+  late final Monster monster;
   final double step = 10;
   double _counter = 0;
   late final RectangleHitbox box;
@@ -60,7 +61,7 @@ class TolyGame extends FlameGame
     Vector2 mosterSize = Vector2(64, 64);
     final double pY = _random.nextDouble() * size.y;
     final double pX = size.x - mosterSize.x / 2;
-    var monster = Monster(
+    monster = Monster(
         animation: animation, size: mosterSize, position: Vector2(pX, pY));
     add(monster);
   }
@@ -110,7 +111,7 @@ class TolyGame extends FlameGame
   @override
   void onTap() {
     _counter++;
-    player.rotateTo(_counter * pi / 2);
+    monster.loss(50);
   }
 
   @override

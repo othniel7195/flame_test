@@ -1,7 +1,7 @@
 /*
  * @Author: jimmy.zhao
  * @Date: 2022-11-07 18:50:24
- * @LastEditTime: 2022-11-08 20:45:46
+ * @LastEditTime: 2022-11-09 01:15:58
  * @LastEditors: jimmy.zhao
  * @Description: 
  * 
@@ -67,8 +67,13 @@ class Monster extends SpriteAnimationComponent with Liveable {
 
   @override
   Future<void>? onLoad() async {
-    add(RectangleHitbox()..debugMode = true);
+    add(RectangleHitbox()..debugMode = false);
     initPaint(lifePoint: 2000, lifeColor: Colors.red);
+  }
+
+  @override
+  void onDied() {
+    removeFromParent();
   }
 }
 
@@ -77,6 +82,12 @@ mixin Liveable on PositionComponent {
   final Paint _fillPaint = Paint();
   late double lifePoint;
   late double _currentLife;
+  final TextStyle _defaultTextStyle =
+      const TextStyle(fontSize: 10, color: Colors.white);
+  late final TextComponent _text;
+  final double offsetY = 10;
+  final double widthRadio = 0.8;
+  final double lifeBarHeight = 4;
 
   void initPaint({
     required double lifePoint,
@@ -90,6 +101,12 @@ mixin Liveable on PositionComponent {
     _fillPaint.color = lifeColor;
     this.lifePoint = lifePoint;
     _currentLife = lifePoint;
+    _text = TextComponent(textRenderer: TextPaint(style: _defaultTextStyle));
+    _updateLifeText();
+    double y = -(offsetY + _text.height + 2);
+    double x = (size.x / 2) * (1 - widthRadio);
+    _text.position = Vector2(x, y);
+    add(_text);
   }
 
   double get _progress => _currentLife / lifePoint;
@@ -97,12 +114,6 @@ mixin Liveable on PositionComponent {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    Color lifeColor = Colors.red;
-    Color outlineColor = Colors.white;
-    final double offsetY = 10;
-    final double widthRadio = 0.8;
-    final double lifeBarHeight = 4;
-    final double lifeProgress = 0.8;
 
     Rect rect = Rect.fromCenter(
       center: Offset(size.x / 2, lifeBarHeight / 2 - offsetY),
@@ -111,11 +122,26 @@ mixin Liveable on PositionComponent {
     );
 
     Rect lifeRect = Rect.fromPoints(
-      rect.topLeft + Offset(rect.width * (1 - lifeProgress), 0),
+      rect.topLeft + Offset(rect.width * (1 - _progress), 0),
       rect.bottomRight,
     );
 
     canvas.drawRect(lifeRect, _fillPaint);
     canvas.drawRect(rect, _outlinPaint);
   }
+
+  void loss(double point) {
+    _currentLife -= point;
+    _updateLifeText();
+    if (_currentLife <= 0) {
+      _currentLife = 0;
+      onDied();
+    }
+  }
+
+  void _updateLifeText() {
+    _text.text = 'Hp ${_currentLife.toInt()}';
+  }
+
+  void onDied() {}
 }
