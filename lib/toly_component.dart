@@ -1,7 +1,7 @@
 /*
  * @Author: jimmy.zhao
  * @Date: 2022-11-07 18:50:24
- * @LastEditTime: 2022-11-09 16:31:09
+ * @LastEditTime: 2022-11-09 16:53:02
  * @LastEditors: jimmy.zhao
  * @Description: 
  * 
@@ -287,7 +287,7 @@ class Bullet extends SpriteComponent {
   Bullet({required Sprite sprite, required this.maxRange})
       : super(sprite: sprite);
   double _length = 0;
-  bool shouldRemove = false;
+
   @override
   void update(double dt) {
     super.update(dt);
@@ -296,7 +296,7 @@ class Bullet extends SpriteComponent {
     position.add(ds);
     if (_length > maxRange) {
       _length = 0;
-      shouldRemove = true;
+
       removeFromParent();
     }
   }

@@ -1,7 +1,7 @@
 /*
  * @Author: jimmy.zhao
  * @Date: 2022-11-07 18:48:25
- * @LastEditTime: 2022-11-09 16:34:27
+ * @LastEditTime: 2022-11-09 16:53:07
  * @LastEditors: jimmy.zhao
  * @Description: 
  * 
@@ -75,7 +75,7 @@ class TolyGame extends FlameGame
     }
     final Iterable<Bullet> bullets = children.whereType<Bullet>();
     for (Bullet bullet in bullets) {
-      if (bullet.shouldRemove) {
+      if (bullet.isRemoving) {
         continue;
       }
       if (monster.containsPoint(bullet.absoluteCenter)) {
