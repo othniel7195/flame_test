@@ -1,7 +1,7 @@
 /*
  * @Author: jimmy.zhao
  * @Date: 2022-11-07 18:48:25
- * @LastEditTime: 2022-11-09 00:53:28
+ * @LastEditTime: 2022-11-09 16:34:27
  * @LastEditors: jimmy.zhao
  * @Description: 
  * 
@@ -21,12 +21,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class TolyGame extends FlameGame
-    with HasDraggables, KeyboardEvents, TapDetector {
+    with HasDraggables, KeyboardEvents, TapDetector, PanDetector {
   late final JoystickComponent joystick;
   late final HeroComponent player;
   late final Monster monster;
   final double step = 10;
-  double _counter = 0;
   late final RectangleHitbox box;
   final Random _random = Random();
 
@@ -74,6 +73,17 @@ class TolyGame extends FlameGame
       player.move(ds);
       player.rotateTo(joystick.delta.screenAngle());
     }
+    final Iterable<Bullet> bullets = children.whereType<Bullet>();
+    for (Bullet bullet in bullets) {
+      if (bullet.shouldRemove) {
+        continue;
+      }
+      if (monster.containsPoint(bullet.absoluteCenter)) {
+        bullet.removeFromParent();
+        monster.loss(50);
+        break;
+      }
+    }
   }
 
   @override
@@ -105,14 +115,14 @@ class TolyGame extends FlameGame
         isKeyDown) {
       player.move(Vector2(step, 0));
     }
+    if ((event.logicalKey == LogicalKeyboardKey.keyJ) && isKeyDown) {
+      player.shoot();
+    }
     return super.onKeyEvent(event, keysPressed);
   }
 
   @override
-  void onTap() {
-    _counter++;
-    monster.loss(50);
-  }
+  void onTap() {}
 
   @override
   void onTapCancel() {
@@ -126,6 +136,24 @@ class TolyGame extends FlameGame
 
   @override
   void onTapDown(TapDownInfo info) {
-    box.debugMode = true;
+    box.debugMode = false;
+  }
+
+  @override
+  void onPanDown(DragDownInfo info) {
+    Vector2 target = info.eventPosition.global;
+    add(TouchIndicator(position: target));
+    player.toTarget(target);
+  }
+
+  double ds = 0;
+
+  @override
+  void onPanUpdate(DragUpdateInfo info) {
+    ds += info.delta.global.length;
+    if (ds > 10) {
+      add(TouchIndicator(position: info.eventPosition.global));
+      ds = 0;
+    }
   }
 }
